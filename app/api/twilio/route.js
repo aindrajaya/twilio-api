@@ -14,8 +14,8 @@ export async function GET(req, res) {
   // const accountSid = 'YOUR_ACCOUNT_SID';
   // const authToken = 'YOUR_AUTH_TOKEN';
 
-  const accountSid = 'AC656458a960f2caefbcd7942e6efcae4b';
-  const authToken = 'db4fc39d2add636c455c05ec6ea1eb68';
+  const accountSid = process.env.ACCOUNT_SID;
+  const authToken = process.env.AUTH_TOKEN;
   const fromPhoneNumber = '+12565677801';
   const toPhoneNumber = '+6281263589080';
 
