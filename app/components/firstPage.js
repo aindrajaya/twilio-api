@@ -1,11 +1,9 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Store, AddReminder, RemoveReminder, ClearReminder, useReminder } from "../context/store";
 
 export default function FirstPage() {
-  const scheduledTime = new Date().getTime() + 10000;
-
   const { state, dispatch } = useReminder()
   const [text, setText] = useState("");
   const [date, setDate] = useState("");
@@ -16,8 +14,9 @@ export default function FirstPage() {
     setDate("");
   };
 
-  const makeSend = (text) =>{
-    fetch(`/api/twilio?message=${text}&time=${scheduledTime}`)
+  const makeSend = (text, dateInMilliseconds) =>{
+    console.log(dateInMilliseconds, "Date time in miliseconds")
+    fetch(`/api/twilio?message=${text}&time=${dateInMilliseconds}`)
   }
 
   return (
@@ -34,6 +33,11 @@ export default function FirstPage() {
             text,
             date,
           });
+          // Convert the date to milliseconds
+          const dateWhenAdded = new Date().getTime() - 1000;
+          const dateSecheduledInMiliseconds = new Date(date).getTime();
+          const dateInMilliseconds = dateSecheduledInMiliseconds - dateWhenAdded;
+          makeSend(text, dateInMilliseconds)
           setText("");
           setDate("");
         }}
@@ -58,7 +62,7 @@ export default function FirstPage() {
           </div>
           <div className="col-span-10">
             <input
-              type="date"
+              type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               id="date"

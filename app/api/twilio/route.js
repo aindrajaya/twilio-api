@@ -6,18 +6,12 @@ export async function GET(req, res) {
   const params = new URLSearchParams(url.search);
   const message = params.get("message");
   const time = params.get("time");
-  console.log(message, "data message")
-  console.log(time, "time message")
-
-  // const fromPhoneNumber = "+12565677801";
-  // const toPhoneNumber = "+phone";
-  // const accountSid = 'YOUR_ACCOUNT_SID';
-  // const authToken = 'YOUR_AUTH_TOKEN';
+  console.log(time, "Time in miliseconds");
 
   const accountSid = process.env.ACCOUNT_SID;
   const authToken = process.env.AUTH_TOKEN;
-  const fromPhoneNumber = '+12565677801';
-  const toPhoneNumber = '+6281263589080';
+  const fromPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+  const toPhoneNumber = process.env.TWILIO_YOUR_PHONE_NUMBER;
 
   // Create a Twilio client
   const client = new Twilio(accountSid, authToken);
@@ -52,7 +46,7 @@ export async function GET(req, res) {
         .then((call) => {
           console.log(`Call SID: ${call.sid}`);
           // Return the result of sending the SMS
-          // return sendSMS(messageSchedule);
+          return sendSMS(messageSchedule);
         })
         .catch((error) => {
           console.error(`Error making call: ${error.message}`);
@@ -60,20 +54,17 @@ export async function GET(req, res) {
         });
     };
 
-    // Example: Send a message with a scheduled call
-    // const scheduledTimeMillis = /* Calculate the scheduled time in milliseconds */
-    // const scheduledMessage = "Your scheduled message";
-
     // Function to schedule a call and send a message
-    const scheduleCallAndSendSMS = (messageForSchedule) => {
+    const scheduleCallAndSendSMS = (messageForSchedule, delayInMiliseconds) => {
       setTimeout(() => {
         // Call makeCall with the message to initiate the call and send SMS
+        // sendSMS(messageForSchedule);
         makeCall(messageForSchedule);
-      }, time);
+      }, delayInMiliseconds);
     };
 
     // You can call scheduleCallAndSendSMS to initiate the process
-    scheduleCallAndSendSMS(message);
+    scheduleCallAndSendSMS(message, time);
 
     return NextResponse.json({ message: 'Call and sent message successfully' });
   } catch (error) {
