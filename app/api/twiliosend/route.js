@@ -2,30 +2,95 @@ import { Twilio } from 'twilio';
 import { NextResponse } from "next/server";
 
 export async function GET(req, res) {
-  // const { message } = parse(req.url, true);
-  const url = new URL(req.url);
-  const params = new URLSearchParams(url.search);
-  const message = params.get("message");
-  console.log(message, "data message")
-
-  const accountSid = 'AC656458a960f2caefbcd7942e6efcae4b';
-  const authToken = 'db4fc39d2add636c455c05ec6ea1eb68';
-  const fromPhoneNumber = '+12565677801';
-  const toPhoneNumber = '+6281263589080';
-
-  const client = new Twilio(accountSid, authToken);
-
   try {
+    const url = new URL(req.url);
+    const params = new URLSearchParams(url.search);
+    const message = params.get("message");
+    
+    if (!message) {
+      return NextResponse.json({ error: 'Message parameter is required' }, { status: 400 });
+    }
+
+    console.log('Sending message:', message);
+
+    // Get credentials from environment variables
+    const accountSid = process.env.ACCOUNT_SID;
+    const authToken = process.env.AUTH_TOKEN;
+    const fromPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+    const toPhoneNumber = process.env.TWILIO_YOUR_PHONE_NUMBER;
+
+    // Validate environment variables
+    if (!accountSid || !authToken || !fromPhoneNumber || !toPhoneNumber) {
+      console.error('Missing Twilio environment variables');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    const client = new Twilio(accountSid, authToken);
+
     const sentMessage = await client.messages.create({
       body: message,
       from: fromPhoneNumber,
       to: toPhoneNumber,
     });
 
-    console.log('Message sent:', sentMessage.sid);
-    return NextResponse.json({ message: 'SMS sent successfully' });
+    console.log('Message sent successfully:', sentMessage.sid);
+    return NextResponse.json({ 
+      success: true,
+      message: 'SMS sent successfully',
+      messageId: sentMessage.sid
+    });
+    
   } catch (error) {
-    console.error('Error sending message:', error);
-    return NextResponse.json({ error: 'Failed to send SMS' });
+    console.error('Error sending message:', error.message);
+    return NextResponse.json({ 
+      error: 'Failed to send SMS',
+      details: error.message 
+    }, { status: 500 });
+  }
+}
+
+export async function POST(req) {
+  try {
+    const { message } = await req.json();
+    
+    if (!message) {
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+    }
+
+    console.log('Sending message via POST:', message);
+
+    // Get credentials from environment variables
+    const accountSid = process.env.ACCOUNT_SID;
+    const authToken = process.env.AUTH_TOKEN;
+    const fromPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+    const toPhoneNumber = process.env.TWILIO_YOUR_PHONE_NUMBER;
+
+    // Validate environment variables
+    if (!accountSid || !authToken || !fromPhoneNumber || !toPhoneNumber) {
+      console.error('Missing Twilio environment variables');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    const client = new Twilio(accountSid, authToken);
+
+    const sentMessage = await client.messages.create({
+      body: message,
+      from: fromPhoneNumber,
+      to: toPhoneNumber,
+    });
+
+    console.log('Message sent successfully:', sentMessage.sid);
+    return NextResponse.json({ 
+      success: true,
+      message: 'SMS sent successfully',
+      messageId: sentMessage.sid
+    });
+    
+  } catch (error) {
+    console.error('Error sending message:', error.message);
+    return NextResponse.json({ 
+      error: 'Failed to send SMS',
+      details: error.message 
+    }, { status: 500 });
   }
 }
