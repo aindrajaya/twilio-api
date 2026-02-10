@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "2.35.0",
     "acme": "3.0.3",
     "autoprefixer": "10.4.16",
     "https-proxy-agent": "7.0.2",
